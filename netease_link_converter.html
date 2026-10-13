@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f7f5">
+<title>网易云音乐链接转换器</title>
+<meta name="description" content="粘贴网易云音乐歌曲分享链接，一键转换为歌曲媒体链接。">
+<style>
+  :root { color-scheme: light; --bg:#f7f7f5; --panel:#fff; --ink:#20211f; --muted:#777a75; --line:#e8e9e4; --red:#e5484d; --red-dark:#c9343a; --soft:#fff0f0; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background:radial-gradient(ellipse at 50% 0%, #fff 0, var(--bg) 58%); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; display:flex; flex-direction:column; }
+  .topbar { height:68px; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(20px,5vw,72px); border-bottom:1px solid rgba(30,30,30,.06); }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:-.3px; }
+  .logo { width:32px;height:32px;border-radius:10px;background:var(--red);display:grid;place-items:center;color:#fff;box-shadow:0 4px 12px #e5484d30; }
+  .top-note { font-size:12px;color:var(--muted); }
+  main { width:min(680px, calc(100% - 36px)); margin:clamp(44px,9vh,94px) auto 64px; flex:1; }
+  .eyebrow { display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:650;color:var(--red-dark);background:var(--soft);padding:7px 11px;border-radius:99px; }
+  h1 { font-size:clamp(30px,5vw,44px);line-height:1.18;letter-spacing:-1.5px;margin:20px 0 13px;font-weight:760; }
+  .sub { color:var(--muted);font-size:15px;line-height:1.8;margin:0 0 34px; }
+  .card { background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:clamp(20px,4vw,30px);box-shadow:0 14px 42px rgba(28,31,25,.045); }
+  label { display:block;font-size:13px;font-weight:650;margin-bottom:10px; }
+  textarea { display:block;width:100%;min-height:112px;resize:vertical;border:1px solid #dedfd9;border-radius:12px;padding:14px 15px;font:14px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);background:#fdfdfc;outline:none;transition:border .18s,box-shadow .18s; }
+  textarea:focus { border-color:#e8878a;box-shadow:0 0 0 3px #e5484d14; }
+  .hint { color:var(--muted);font-size:12px;line-height:1.6;margin:9px 0 18px; }
+  button,.action-link { appearance:none;border:0;border-radius:11px;min-height:46px;padding:0 17px;font-size:14px;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:transform .15s,background .15s; }
+  button:active,.action-link:active { transform:scale(.985); }
+  .primary { color:white;background:var(--red);width:100%; }
+  .primary:hover { background:var(--red-dark); }
+  .result { margin-top:22px;display:none; }
+  .result.show { display:block; }
+  .result-head { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px; }
+  .result-title { font-size:13px;font-weight:700; }
+  .status { color:#238653;font-size:12px;display:flex;align-items:center;gap:5px; }
+  .output { overflow-wrap:anywhere;border:1px solid #e8e9e4;background:#f8f9f6;border-radius:12px;padding:14px;font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;color:#363832; }
+  .result-actions { display:flex;gap:10px;margin-top:12px; }
+  .secondary { background:#f0f1ed;color:#292a27;flex:1; }
+  .secondary:hover { background:#e7e8e2; }
+  .download { background:#252622;color:white;flex:1; }
+  .download:hover { background:#11120f; }
+  .error { display:none;margin-top:12px;color:#b4232a;background:#fff1f1;border:1px solid #ffd9da;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5; }
+  .error.show { display:block; }
+  .steps { margin-top:30px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
+  .step { padding:15px 14px;border:1px solid var(--line);border-radius:13px;background:#ffffff8c; }
+  .step-num { color:var(--red);font-size:11px;font-weight:800;letter-spacing:.8px;margin-bottom:8px; }
+  .step strong { display:block;font-size:13px;margin-bottom:5px; }
+  .step span { display:block;color:var(--muted);font-size:12px;line-height:1.55; }
+  .disclaimer { margin:23px 2px 0;color:#898b85;font-size:11px;line-height:1.7; }
+  footer { padding:22px 20px;text-align:center;color:#92948e;font-size:11px;border-top:1px solid rgba(30,30,30,.06); }
+  @media(max-width:520px) { .topbar{height:60px}.top-note{display:none}main{margin-top:46px}.steps{grid-template-columns:1fr;gap:9px}.step{display:grid;grid-template-columns:35px 1fr;column-gap:7px}.step-num{grid-row:span 2;margin-top:2px}.step strong{margin-bottom:3px}.result-actions{flex-direction:column}.sub{font-size:14px} }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l11-2v13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></svg></span>音乐链接转换器</div>
+  <div class="top-note">简单 · 快速 · 无需登录</div>
+</header>
+<main>
+  <div class="eyebrow"><span>♫</span> 网易云音乐工具</div>
+  <h1>把分享链接，变成<br>歌曲媒体链接。</h1>
+  <p class="sub">粘贴网易云音乐的歌曲链接，自动提取歌曲 ID 并生成对应的媒体地址。</p>
+  <section class="card" aria-label="链接转换工具">
+    <label for="source">网易云音乐歌曲链接</label>
+    <textarea id="source" spellcheck="false" placeholder="粘贴歌曲链接，例如：https://music.163.com/#/song?id=536096105&amp;userid=19770550"></textarea>
+    <p class="hint">支持歌曲详情页链接及包含 song?id=歌曲ID 的分享链接。</p>
+    <button class="primary" id="convert" type="button">转换链接 <span aria-hidden="true">→</span></button>
+    <div class="error" id="error" role="alert"></div>
+    <div class="result" id="result" aria-live="polite">
+      <div class="result-head"><span class="result-title">转换结果</span><span class="status">✓ 已生成</span></div>
+      <div class="output" id="output"></div>
+      <div class="result-actions">
+        <button class="secondary" id="copy" type="button">复制链接</button>
+        <a class="action-link download" id="open" href="#" target="_blank" rel="noopener noreferrer">打开媒体链接 ↗</a>
+      </div>
+    </div>
+  </section>
+  <div class="steps" aria-label="使用步骤">
+    <div class="step"><div class="step-num">01</div><strong>复制分享链接</strong><span>从网易云音乐复制歌曲的官方链接。</span></div>
+    <div class="step"><div class="step-num">02</div><strong>粘贴并转换</strong><span>工具自动识别歌曲 ID，生成媒体地址。</span></div>
+    <div class="step"><div class="step-num">03</div><strong>打开或复制</strong><span>复制转换结果，或尝试在新页面打开。</span></div>
+  </div>
+  <p class="disclaimer">说明：本工具只转换链接格式，不托管或存储音频文件。媒体链接是否可用、是否能播放或下载，取决于网易云音乐的服务规则、歌曲版权及网络环境。请仅将内容用于你有权访问和使用的场景。</p>
+</main>
+<footer>仅供个人学习与链接格式转换使用</footer>
+<script>
+(() => {
+  const source = document.getElementById('source');
+  const convert = document.getElementById('convert');
+  const error = document.getElementById('error');
+  const result = document.getElementById('result');
+  const output = document.getElementById('output');
+  const copy = document.getElementById('copy');
+  const open = document.getElementById('open');
+  let generatedUrl = '';
+
+  function showError(message) {
+    error.textContent = message;
+    error.classList.add('show');
+    result.classList.remove('show');
+  }
+  function convertLink() {
+    const raw = source.value.trim();
+    error.classList.remove('show');
+    if (!raw) return showError('请先粘贴网易云音乐歌曲链接。');
+
+    // Handles hash routes (/#/song?id=...), regular query strings, and pasted URLs.
+    const decoded = raw.replace(/&amp;/g, '&').replace(/\\&/g, '&');
+    const match = decoded.match(/[?&#]song\?id=(\d+)/i)
+      || decoded.match(/[?&#]id=(\d+)/i)
+      || decoded.match(/\/song\/(\d+)(?:[/?#]|$)/i);
+    if (!match) return showError('没有识别到歌曲 ID。请确认粘贴的是网易云音乐的歌曲链接，而不是歌单或专辑链接。');
+
+    const id = match[1];
+    generatedUrl = `http://music.163.com/song/media/outer/url?id=${id}.mp3`;
+    output.textContent = generatedUrl;
+    open.href = generatedUrl;
+    result.classList.add('show');
+    copy.textContent = '复制链接';
+  }
+  convert.addEventListener('click', convertLink);
+  source.addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') convertLink();
+  });
+  copy.addEventListener('click', async () => {
+    if (!generatedUrl) return;
+    try {
+      await navigator.clipboard.writeText(generatedUrl);
+      copy.textContent = '已复制 ✓';
+    } catch {
+      const range = document.createRange();
+      const selection = window.getSelection();
+      const temp = document.createElement('textarea');
+      temp.value = generatedUrl;
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.select();
+      try { document.execCommand('copy'); copy.textContent = '已复制 ✓'; }
+      catch { copy.textContent = '请手动复制'; }
+      temp.remove();
+    }
+    window.setTimeout(() => { copy.textContent = '复制链接'; }, 1800);
+  });
+  source.value = '';
+})();
+</script>
+</body>
+</html>
