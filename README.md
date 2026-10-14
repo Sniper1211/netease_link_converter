@@ -12,13 +12,13 @@
 
 ## 使用
 
-直接在浏览器中打开 `netease_link_converter.html` 即可使用，无需构建或安装依赖。
+直接在浏览器中打开 `index.html` 即可使用，无需构建或安装依赖。
 
 ```bash
-open netease_link_converter.html
+open index.html
 ```
 
-也可将该 HTML 文件部署到任意静态托管服务。
+也可将该 HTML 文件部署到任意静态托管服务（如 Vercel），上传整个仓库目录即可。
 
 ## 示例
 
